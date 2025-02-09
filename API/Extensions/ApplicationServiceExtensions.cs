@@ -1,5 +1,6 @@
 using Application.Core;
 using Application.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -16,6 +17,11 @@ namespace API.Extensions
             {
                 opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             });
+
+            // Добавление Identity
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<DataContext>()
+                .AddDefaultTokenProviders();
 
             services.AddScoped<ICoursesService, CoursesService>();
 
