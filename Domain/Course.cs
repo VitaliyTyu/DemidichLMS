@@ -1,15 +1,7 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Domain
+public class Course
 {
-    public class Course
-    {
-        [Column(TypeName = "uuid")]
-        public Guid Id { get; set; }
-        public string? Title { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public string? Description { get; set; }
-        public string? Content { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public List<Enrollment> Enrollments { get; set; } = new();
 }
