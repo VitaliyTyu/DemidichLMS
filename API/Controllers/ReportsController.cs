@@ -1,4 +1,3 @@
-// Controllers/ReportsController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -19,9 +18,15 @@ public class ReportsController : ControllerBase
     public async Task<IActionResult> GetAllReports()
     {
         var reports = await _context.Reports
-            .Include(r => r.User)
-            .Include(r => r.Course)
+            .Select(r => new ReportDTO
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                CourseId = r.CourseId,
+                Progress = r.Progress
+            })
             .ToListAsync();
+
         return Ok(reports);
     }
 
@@ -30,9 +35,15 @@ public class ReportsController : ControllerBase
     public async Task<IActionResult> GetReportById(int id)
     {
         var report = await _context.Reports
-            .Include(r => r.User)
-            .Include(r => r.Course)
-            .FirstOrDefaultAsync(r => r.Id == id);
+            .Where(r => r.Id == id)
+            .Select(r => new ReportDTO
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                CourseId = r.CourseId,
+                Progress = r.Progress
+            })
+            .FirstOrDefaultAsync();
 
         if (report == null)
         {
@@ -44,16 +55,32 @@ public class ReportsController : ControllerBase
 
     // Создать отчет
     [HttpPost]
-    public async Task<IActionResult> CreateReport([FromBody] Report report)
+    public async Task<IActionResult> CreateReport([FromBody] CreateReportDTO createReportDTO)
     {
+        var report = new Report
+        {
+            UserId = createReportDTO.UserId,
+            CourseId = createReportDTO.CourseId,
+            Progress = createReportDTO.Progress
+        };
+
         _context.Reports.Add(report);
         await _context.SaveChangesAsync();
-        return Ok(report);
+
+        var reportDTO = new ReportDTO
+        {
+            Id = report.Id,
+            UserId = report.UserId,
+            CourseId = report.CourseId,
+            Progress = report.Progress
+        };
+
+        return Ok(reportDTO);
     }
 
     // Обновить отчет
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateReport(int id, [FromBody] Report updatedReport)
+    public async Task<IActionResult> UpdateReport(int id, [FromBody] UpdateReportDTO updateReportDTO)
     {
         var report = await _context.Reports.FindAsync(id);
 
@@ -62,13 +89,20 @@ public class ReportsController : ControllerBase
             return NotFound("Report not found");
         }
 
-        report.UserId = updatedReport.UserId;
-        report.CourseId = updatedReport.CourseId;
-        report.Progress = updatedReport.Progress;
+        report.Progress = updateReportDTO.Progress;
 
         _context.Reports.Update(report);
         await _context.SaveChangesAsync();
-        return Ok(report);
+
+        var reportDTO = new ReportDTO
+        {
+            Id = report.Id,
+            UserId = report.UserId,
+            CourseId = report.CourseId,
+            Progress = report.Progress
+        };
+
+        return Ok(reportDTO);
     }
 
     // Удалить отчет
@@ -84,6 +118,7 @@ public class ReportsController : ControllerBase
 
         _context.Reports.Remove(report);
         await _context.SaveChangesAsync();
+
         return Ok(new { Message = "Report deleted successfully" });
     }
 }

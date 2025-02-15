@@ -19,10 +19,16 @@ public class UserProgressController : ControllerBase
     public async Task<IActionResult> GetAllProgress()
     {
         var progress = await _context.UserProgresses
-            .Include(p => p.User)
-            .Include(p => p.Course)
-            .Include(p => p.Module)
+            .Select(p => new UserProgressDTO
+            {
+                Id = p.Id,
+                UserId = p.UserId,
+                CourseId = p.CourseId,
+                ModuleId = p.ModuleId,
+                IsCompleted = p.IsCompleted
+            })
             .ToListAsync();
+
         return Ok(progress);
     }
 
@@ -31,10 +37,16 @@ public class UserProgressController : ControllerBase
     public async Task<IActionResult> GetProgressById(int id)
     {
         var progress = await _context.UserProgresses
-            .Include(p => p.User)
-            .Include(p => p.Course)
-            .Include(p => p.Module)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .Where(p => p.Id == id)
+            .Select(p => new UserProgressDTO
+            {
+                Id = p.Id,
+                UserId = p.UserId,
+                CourseId = p.CourseId,
+                ModuleId = p.ModuleId,
+                IsCompleted = p.IsCompleted
+            })
+            .FirstOrDefaultAsync();
 
         if (progress == null)
         {
@@ -46,16 +58,34 @@ public class UserProgressController : ControllerBase
 
     // Создать прогресс
     [HttpPost]
-    public async Task<IActionResult> CreateProgress([FromBody] UserProgress progress)
+    public async Task<IActionResult> CreateProgress([FromBody] CreateUserProgressDTO createUserProgressDTO)
     {
+        var progress = new UserProgress
+        {
+            UserId = createUserProgressDTO.UserId,
+            CourseId = createUserProgressDTO.CourseId,
+            ModuleId = createUserProgressDTO.ModuleId,
+            IsCompleted = false
+        };
+
         _context.UserProgresses.Add(progress);
         await _context.SaveChangesAsync();
-        return Ok(progress);
+
+        var progressDTO = new UserProgressDTO
+        {
+            Id = progress.Id,
+            UserId = progress.UserId,
+            CourseId = progress.CourseId,
+            ModuleId = progress.ModuleId,
+            IsCompleted = progress.IsCompleted
+        };
+
+        return Ok(progressDTO);
     }
 
     // Обновить прогресс
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProgress(int id, [FromBody] UserProgress updatedProgress)
+    public async Task<IActionResult> UpdateProgress(int id, [FromBody] UpdateUserProgressDTO updateUserProgressDTO)
     {
         var progress = await _context.UserProgresses.FindAsync(id);
 
@@ -64,14 +94,21 @@ public class UserProgressController : ControllerBase
             return NotFound("Progress not found");
         }
 
-        progress.UserId = updatedProgress.UserId;
-        progress.CourseId = updatedProgress.CourseId;
-        progress.ModuleId = updatedProgress.ModuleId;
-        progress.IsCompleted = updatedProgress.IsCompleted;
+        progress.IsCompleted = updateUserProgressDTO.IsCompleted;
 
         _context.UserProgresses.Update(progress);
         await _context.SaveChangesAsync();
-        return Ok(progress);
+
+        var progressDTO = new UserProgressDTO
+        {
+            Id = progress.Id,
+            UserId = progress.UserId,
+            CourseId = progress.CourseId,
+            ModuleId = progress.ModuleId,
+            IsCompleted = progress.IsCompleted
+        };
+
+        return Ok(progressDTO);
     }
 
     // Удалить прогресс
@@ -87,6 +124,7 @@ public class UserProgressController : ControllerBase
 
         _context.UserProgresses.Remove(progress);
         await _context.SaveChangesAsync();
+
         return Ok(new { Message = "Progress deleted successfully" });
     }
 }

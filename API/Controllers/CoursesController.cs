@@ -1,3 +1,4 @@
+// Controllers/CoursesController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -17,7 +18,15 @@ public class CoursesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllCourses()
     {
-        var courses = await _context.Courses.Include(c => c.Modules).ToListAsync();
+        var courses = await _context.Courses
+            .Select(c => new CourseDTO
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Description = c.Description
+            })
+            .ToListAsync();
+
         return Ok(courses);
     }
 
@@ -26,8 +35,14 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> GetCourseById(int id)
     {
         var course = await _context.Courses
-            .Include(c => c.Modules)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Where(c => c.Id == id)
+            .Select(c => new CourseDTO
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Description = c.Description
+            })
+            .FirstOrDefaultAsync();
 
         if (course == null)
         {
@@ -39,16 +54,30 @@ public class CoursesController : ControllerBase
 
     // Создать курс
     [HttpPost]
-    public async Task<IActionResult> CreateCourse([FromBody] Course course)
+    public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDTO createCourseDTO)
     {
+        var course = new Course
+        {
+            Title = createCourseDTO.Title,
+            Description = createCourseDTO.Description
+        };
+
         _context.Courses.Add(course);
         await _context.SaveChangesAsync();
-        return Ok(course);
+
+        var courseDTO = new CourseDTO
+        {
+            Id = course.Id,
+            Title = course.Title,
+            Description = course.Description
+        };
+
+        return Ok(courseDTO);
     }
 
     // Обновить курс
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCourse(int id, [FromBody] Course updatedCourse)
+    public async Task<IActionResult> UpdateCourse(int id, [FromBody] UpdateCourseDTO updateCourseDTO)
     {
         var course = await _context.Courses.FindAsync(id);
 
@@ -57,12 +86,20 @@ public class CoursesController : ControllerBase
             return NotFound("Course not found");
         }
 
-        course.Title = updatedCourse.Title;
-        course.Description = updatedCourse.Description;
+        course.Title = updateCourseDTO.Title;
+        course.Description = updateCourseDTO.Description;
 
         _context.Courses.Update(course);
         await _context.SaveChangesAsync();
-        return Ok(course);
+
+        var courseDTO = new CourseDTO
+        {
+            Id = course.Id,
+            Title = course.Title,
+            Description = course.Description
+        };
+
+        return Ok(courseDTO);
     }
 
     // Удалить курс
@@ -78,6 +115,7 @@ public class CoursesController : ControllerBase
 
         _context.Courses.Remove(course);
         await _context.SaveChangesAsync();
+
         return Ok(new { Message = "Course deleted successfully" });
     }
 }

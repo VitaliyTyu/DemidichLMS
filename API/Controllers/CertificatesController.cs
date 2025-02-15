@@ -19,9 +19,15 @@ public class CertificatesController : ControllerBase
     public async Task<IActionResult> GetAllCertificates()
     {
         var certificates = await _context.Certificates
-            .Include(c => c.User)
-            .Include(c => c.Course)
+            .Select(c => new CertificateDTO
+            {
+                Id = c.Id,
+                UserId = c.UserId,
+                CourseId = c.CourseId,
+                IssueDate = c.IssueDate
+            })
             .ToListAsync();
+
         return Ok(certificates);
     }
 
@@ -30,9 +36,15 @@ public class CertificatesController : ControllerBase
     public async Task<IActionResult> GetCertificateById(int id)
     {
         var certificate = await _context.Certificates
-            .Include(c => c.User)
-            .Include(c => c.Course)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Where(c => c.Id == id)
+            .Select(c => new CertificateDTO
+            {
+                Id = c.Id,
+                UserId = c.UserId,
+                CourseId = c.CourseId,
+                IssueDate = c.IssueDate
+            })
+            .FirstOrDefaultAsync();
 
         if (certificate == null)
         {
@@ -44,16 +56,32 @@ public class CertificatesController : ControllerBase
 
     // Создать сертификат
     [HttpPost]
-    public async Task<IActionResult> CreateCertificate([FromBody] Certificate certificate)
+    public async Task<IActionResult> CreateCertificate([FromBody] CreateCertificateDTO createCertificateDTO)
     {
+        var certificate = new Certificate
+        {
+            UserId = createCertificateDTO.UserId,
+            CourseId = createCertificateDTO.CourseId,
+            IssueDate = DateTime.UtcNow
+        };
+
         _context.Certificates.Add(certificate);
         await _context.SaveChangesAsync();
-        return Ok(certificate);
+
+        var certificateDTO = new CertificateDTO
+        {
+            Id = certificate.Id,
+            UserId = certificate.UserId,
+            CourseId = certificate.CourseId,
+            IssueDate = certificate.IssueDate
+        };
+
+        return Ok(certificateDTO);
     }
 
     // Обновить сертификат
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCertificate(int id, [FromBody] Certificate updatedCertificate)
+    public async Task<IActionResult> UpdateCertificate(int id, [FromBody] UpdateCertificateDTO updateCertificateDTO)
     {
         var certificate = await _context.Certificates.FindAsync(id);
 
@@ -62,13 +90,20 @@ public class CertificatesController : ControllerBase
             return NotFound("Certificate not found");
         }
 
-        certificate.UserId = updatedCertificate.UserId;
-        certificate.CourseId = updatedCertificate.CourseId;
-        certificate.IssueDate = updatedCertificate.IssueDate;
+        certificate.IssueDate = updateCertificateDTO.IssueDate;
 
         _context.Certificates.Update(certificate);
         await _context.SaveChangesAsync();
-        return Ok(certificate);
+
+        var certificateDTO = new CertificateDTO
+        {
+            Id = certificate.Id,
+            UserId = certificate.UserId,
+            CourseId = certificate.CourseId,
+            IssueDate = certificate.IssueDate
+        };
+
+        return Ok(certificateDTO);
     }
 
     // Удалить сертификат
@@ -84,6 +119,7 @@ public class CertificatesController : ControllerBase
 
         _context.Certificates.Remove(certificate);
         await _context.SaveChangesAsync();
+
         return Ok(new { Message = "Certificate deleted successfully" });
     }
 }

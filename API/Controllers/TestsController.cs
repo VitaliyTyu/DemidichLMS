@@ -18,7 +18,15 @@ public class TestsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllTests()
     {
-        var tests = await _context.Tests.Include(t => t.Module).ToListAsync();
+        var tests = await _context.Tests
+            .Select(t => new TestDTO
+            {
+                Id = t.Id,
+                Questions = t.Questions,
+                ModuleId = t.ModuleId
+            })
+            .ToListAsync();
+
         return Ok(tests);
     }
 
@@ -27,8 +35,14 @@ public class TestsController : ControllerBase
     public async Task<IActionResult> GetTestById(int id)
     {
         var test = await _context.Tests
-            .Include(t => t.Module)
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .Where(t => t.Id == id)
+            .Select(t => new TestDTO
+            {
+                Id = t.Id,
+                Questions = t.Questions,
+                ModuleId = t.ModuleId
+            })
+            .FirstOrDefaultAsync();
 
         if (test == null)
         {
@@ -40,16 +54,30 @@ public class TestsController : ControllerBase
 
     // Создать тест
     [HttpPost]
-    public async Task<IActionResult> CreateTest([FromBody] Test test)
+    public async Task<IActionResult> CreateTest([FromBody] CreateTestDTO createTestDTO)
     {
+        var test = new Test
+        {
+            Questions = createTestDTO.Questions,
+            ModuleId = createTestDTO.ModuleId
+        };
+
         _context.Tests.Add(test);
         await _context.SaveChangesAsync();
-        return Ok(test);
+
+        var testDTO = new TestDTO
+        {
+            Id = test.Id,
+            Questions = test.Questions,
+            ModuleId = test.ModuleId
+        };
+
+        return Ok(testDTO);
     }
 
     // Обновить тест
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTest(int id, [FromBody] Test updatedTest)
+    public async Task<IActionResult> UpdateTest(int id, [FromBody] UpdateTestDTO updateTestDTO)
     {
         var test = await _context.Tests.FindAsync(id);
 
@@ -58,12 +86,19 @@ public class TestsController : ControllerBase
             return NotFound("Test not found");
         }
 
-        test.Questions = updatedTest.Questions;
-        test.ModuleId = updatedTest.ModuleId;
+        test.Questions = updateTestDTO.Questions;
 
         _context.Tests.Update(test);
         await _context.SaveChangesAsync();
-        return Ok(test);
+
+        var testDTO = new TestDTO
+        {
+            Id = test.Id,
+            Questions = test.Questions,
+            ModuleId = test.ModuleId
+        };
+
+        return Ok(testDTO);
     }
 
     // Удалить тест
@@ -79,6 +114,7 @@ public class TestsController : ControllerBase
 
         _context.Tests.Remove(test);
         await _context.SaveChangesAsync();
+
         return Ok(new { Message = "Test deleted successfully" });
     }
 }
