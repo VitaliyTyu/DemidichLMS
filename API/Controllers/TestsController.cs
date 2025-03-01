@@ -1,4 +1,5 @@
 // Controllers/TestsController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -44,10 +45,7 @@ public class TestsController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (test == null)
-        {
-            return NotFound("Test not found");
-        }
+        if (test == null) return NotFound("Test not found");
 
         return Ok(test);
     }
@@ -81,10 +79,7 @@ public class TestsController : ControllerBase
     {
         var test = await _context.Tests.FindAsync(id);
 
-        if (test == null)
-        {
-            return NotFound("Test not found");
-        }
+        if (test == null) return NotFound("Test not found");
 
         test.Questions = updateTestDTO.Questions;
 
@@ -107,10 +102,7 @@ public class TestsController : ControllerBase
     {
         var test = await _context.Tests.FindAsync(id);
 
-        if (test == null)
-        {
-            return NotFound("Test not found");
-        }
+        if (test == null) return NotFound("Test not found");
 
         _context.Tests.Remove(test);
         await _context.SaveChangesAsync();

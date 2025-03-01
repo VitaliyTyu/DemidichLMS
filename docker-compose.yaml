@@ -29,3 +29,14 @@ services:
 # Том для хранения данных PostgreSQL
 volumes:
   postgres_data:
+  authservice:
+    image: authservice
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+
+  modulesservice:
+    image: modulesservice
+    build:
+      context: .
+      dockerfile: ModulesService/Dockerfile

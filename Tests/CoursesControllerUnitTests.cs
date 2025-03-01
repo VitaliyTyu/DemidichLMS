@@ -2,18 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Persistence;
-using Xunit;
 
 public class CoursesControllerUnitTests
 {
-    private readonly Mock<DataContext> _mockContext;
     private readonly CoursesController _controller;
+    private readonly Mock<DataContext> _mockContext;
 
     public CoursesControllerUnitTests()
     {
         var options = new DbContextOptionsBuilder<DataContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
-        .Options;
+            .Options;
 
         _mockContext = new Mock<DataContext>(options);
         _controller = new CoursesController(_mockContext.Object);
@@ -25,8 +24,8 @@ public class CoursesControllerUnitTests
         // Arrange
         var mockCourses = new List<Course>
         {
-            new Course { Id = 1, Title = "Course 1", Description = "Description 1" },
-            new Course { Id = 2, Title = "Course 2", Description = "Description 2" }
+            new() { Id = 1, Title = "Course 1", Description = "Description 1" },
+            new() { Id = 2, Title = "Course 2", Description = "Description 2" }
         }.AsQueryable();
 
         var mockDbSet = new Mock<DbSet<Course>>();

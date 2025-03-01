@@ -1,4 +1,5 @@
 // DTO/CourseDTO.cs
+
 public class CourseDTO
 {
     public int Id { get; set; }

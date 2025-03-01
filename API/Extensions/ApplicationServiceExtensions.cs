@@ -4,41 +4,41 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace API.Extensions
+namespace API.Extensions;
+
+public static class ApplicationServiceExtensions
 {
-    public static class ApplicationServiceExtensions
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+
+        services.AddDbContext<DataContext>(opt =>
         {
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+        });
 
-            services.AddDbContext<DataContext>(opt =>
+        // Добавление Identity
+        services.AddIdentity<User, IdentityRole>()
+            .AddEntityFrameworkStores<DataContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddScoped<ICoursesService, CoursesService>();
+
+        services.AddCors(opt =>
+        {
+            opt.AddPolicy("CorsPolicy", policy =>
             {
-                opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+                policy
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .WithOrigins("https://localhost:3000");
             });
+        });
 
-            // Добавление Identity
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<DataContext>()
-                .AddDefaultTokenProviders();
+        services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 
-            services.AddScoped<ICoursesService, CoursesService>();
-
-            services.AddCors(opt =>
-            {
-                opt.AddPolicy("CorsPolicy", policy =>
-                {
-                    policy
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .WithOrigins("https://localhost:3000");
-                });
-            });
-
-            services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-
-            return services;
-        }
+        return services;
     }
 }

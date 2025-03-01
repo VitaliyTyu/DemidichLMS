@@ -1,4 +1,5 @@
 // Controllers/CertificatesController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -46,10 +47,7 @@ public class CertificatesController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (certificate == null)
-        {
-            return NotFound("Certificate not found");
-        }
+        if (certificate == null) return NotFound("Certificate not found");
 
         return Ok(certificate);
     }
@@ -85,10 +83,7 @@ public class CertificatesController : ControllerBase
     {
         var certificate = await _context.Certificates.FindAsync(id);
 
-        if (certificate == null)
-        {
-            return NotFound("Certificate not found");
-        }
+        if (certificate == null) return NotFound("Certificate not found");
 
         certificate.IssueDate = updateCertificateDTO.IssueDate;
 
@@ -112,10 +107,7 @@ public class CertificatesController : ControllerBase
     {
         var certificate = await _context.Certificates.FindAsync(id);
 
-        if (certificate == null)
-        {
-            return NotFound("Certificate not found");
-        }
+        if (certificate == null) return NotFound("Certificate not found");
 
         _context.Certificates.Remove(certificate);
         await _context.SaveChangesAsync();

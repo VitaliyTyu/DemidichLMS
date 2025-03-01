@@ -1,25 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Services
+namespace Application.Services;
+
+public interface ICoursesService
 {
-    public interface ICoursesService
+    Task<List<Course>> GetCourses();
+}
+
+public class CoursesService : ICoursesService
+{
+    private readonly DataContext _context;
+
+    public CoursesService(DataContext context)
     {
-        Task<List<Course>> GetCourses();
+        _context = context;
     }
 
-    public class CoursesService : ICoursesService
+    public async Task<List<Course>> GetCourses()
     {
-        private readonly DataContext _context;
-
-        public CoursesService(DataContext context)
-        {
-            _context = context;
-        }
-        public async Task<List<Course>> GetCourses()
-        {
-            return await _context.Courses.ToListAsync();
-        }
-
+        return await _context.Courses.ToListAsync();
     }
 }

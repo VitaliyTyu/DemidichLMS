@@ -1,6 +1,8 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Persistence;
+using ModulesService.Data;
+using ModulesService.Models;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -54,7 +56,7 @@ public class ModulesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateModule([FromBody] CreateModuleDTO createModuleDTO)
     {
-        var module = new Module
+        var module = new ModulesService.Models.Module
         {
             Title = createModuleDTO.Title,
             Content = createModuleDTO.Content,
@@ -113,4 +115,25 @@ public class ModulesController : ControllerBase
 
         return Ok(new { Message = "Module deleted successfully" });
     }
+}
+
+public class ModuleDTO
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string Content { get; set; }
+    public int CourseId { get; set; }
+}
+
+public class CreateModuleDTO
+{
+    public string Title { get; set; }
+    public string Content { get; set; }
+    public int CourseId { get; set; }
+}
+
+public class UpdateModuleDTO
+{
+    public string Title { get; set; }
+    public string Content { get; set; }
 }

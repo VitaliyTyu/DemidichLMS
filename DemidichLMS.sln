@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{5E5E52FF-105A-4DB9-B2EF-393CF63BEF84}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{881D1233-684B-454D-AE01-234531EC87AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModulesService", "ModulesService\ModulesService.csproj", "{BA7BA0B3-1377-4217-8903-243DCE26809C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{5E5E52FF-105A-4DB9-B2EF-393CF63BEF84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E5E52FF-105A-4DB9-B2EF-393CF63BEF84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E5E52FF-105A-4DB9-B2EF-393CF63BEF84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{881D1233-684B-454D-AE01-234531EC87AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{881D1233-684B-454D-AE01-234531EC87AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{881D1233-684B-454D-AE01-234531EC87AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{881D1233-684B-454D-AE01-234531EC87AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA7BA0B3-1377-4217-8903-243DCE26809C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA7BA0B3-1377-4217-8903-243DCE26809C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA7BA0B3-1377-4217-8903-243DCE26809C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7BA0B3-1377-4217-8903-243DCE26809C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

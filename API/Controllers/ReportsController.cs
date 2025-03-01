@@ -45,10 +45,7 @@ public class ReportsController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (report == null)
-        {
-            return NotFound("Report not found");
-        }
+        if (report == null) return NotFound("Report not found");
 
         return Ok(report);
     }
@@ -84,10 +81,7 @@ public class ReportsController : ControllerBase
     {
         var report = await _context.Reports.FindAsync(id);
 
-        if (report == null)
-        {
-            return NotFound("Report not found");
-        }
+        if (report == null) return NotFound("Report not found");
 
         report.Progress = updateReportDTO.Progress;
 
@@ -111,10 +105,7 @@ public class ReportsController : ControllerBase
     {
         var report = await _context.Reports.FindAsync(id);
 
-        if (report == null)
-        {
-            return NotFound("Report not found");
-        }
+        if (report == null) return NotFound("Report not found");
 
         _context.Reports.Remove(report);
         await _context.SaveChangesAsync();

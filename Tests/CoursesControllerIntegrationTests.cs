@@ -1,16 +1,8 @@
 ﻿// IntegrationTests/CoursesControllerIntegrationTests.cs
-using AutoDealershipLMS.Controllers;
-using AutoDealershipLMS.Data;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using Persistence;
-
-using System;
-using System.Threading.Tasks;
-
-using Xunit;
 
 public class CoursesControllerIntegrationTests
 {
@@ -21,7 +13,7 @@ public class CoursesControllerIntegrationTests
     {
         var options = new DbContextOptionsBuilder<DataContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
-        .Options;
+            .Options;
 
         _context = new DataContext(options);
         _controller = new CoursesController(_context);
@@ -55,6 +47,7 @@ public class CoursesControllerIntegrationTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal("Course deleted successfully", okResult.Value.GetType().GetProperty("Message").GetValue(okResult.Value));
+        Assert.Equal("Course deleted successfully",
+            okResult.Value.GetType().GetProperty("Message").GetValue(okResult.Value));
     }
 }

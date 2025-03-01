@@ -1,4 +1,5 @@
 // Controllers/CoursesController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -44,10 +45,7 @@ public class CoursesController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (course == null)
-        {
-            return NotFound("Course not found");
-        }
+        if (course == null) return NotFound("Course not found");
 
         return Ok(course);
     }
@@ -81,10 +79,7 @@ public class CoursesController : ControllerBase
     {
         var course = await _context.Courses.FindAsync(id);
 
-        if (course == null)
-        {
-            return NotFound("Course not found");
-        }
+        if (course == null) return NotFound("Course not found");
 
         course.Title = updateCourseDTO.Title;
         course.Description = updateCourseDTO.Description;
@@ -108,10 +103,7 @@ public class CoursesController : ControllerBase
     {
         var course = await _context.Courses.FindAsync(id);
 
-        if (course == null)
-        {
-            return NotFound("Course not found");
-        }
+        if (course == null) return NotFound("Course not found");
 
         _context.Courses.Remove(course);
         await _context.SaveChangesAsync();

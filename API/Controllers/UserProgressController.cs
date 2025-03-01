@@ -1,4 +1,5 @@
 // Controllers/UserProgressController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -48,10 +49,7 @@ public class UserProgressController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (progress == null)
-        {
-            return NotFound("Progress not found");
-        }
+        if (progress == null) return NotFound("Progress not found");
 
         return Ok(progress);
     }
@@ -89,10 +87,7 @@ public class UserProgressController : ControllerBase
     {
         var progress = await _context.UserProgresses.FindAsync(id);
 
-        if (progress == null)
-        {
-            return NotFound("Progress not found");
-        }
+        if (progress == null) return NotFound("Progress not found");
 
         progress.IsCompleted = updateUserProgressDTO.IsCompleted;
 
@@ -117,10 +112,7 @@ public class UserProgressController : ControllerBase
     {
         var progress = await _context.UserProgresses.FindAsync(id);
 
-        if (progress == null)
-        {
-            return NotFound("Progress not found");
-        }
+        if (progress == null) return NotFound("Progress not found");
 
         _context.UserProgresses.Remove(progress);
         await _context.SaveChangesAsync();
