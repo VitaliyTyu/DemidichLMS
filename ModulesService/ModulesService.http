@@ -1,0 +1,6 @@
+@ModulesService_HostAddress = http://localhost:5013
+
+GET {{ModulesService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
