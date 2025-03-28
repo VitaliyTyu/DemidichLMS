@@ -4,12 +4,31 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
+using Serilog;
+using Serilog.Sinks.Graylog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Graylog(new GraylogSinkOptions
+    {
+        HostnameOrAddress = builder.Configuration["Graylog:Hostname"],
+        Port = int.Parse(builder.Configuration["Graylog:Port"]),
+        Facility = "MyApp",
+        MinimumLogEventLevel = Serilog.Events.LogEventLevel.Information
+    })
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+});
 
 // Добавление JWT Authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);

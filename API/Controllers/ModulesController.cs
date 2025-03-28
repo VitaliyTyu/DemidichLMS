@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Persistence;
 
 [ApiController]
@@ -7,17 +9,27 @@ using Persistence;
 public class ModulesController : ControllerBase
 {
     private readonly DataContext _context;
+    private readonly IDistributedCache _cache;
+    private const string CacheKey = "ModulesCache";
 
-    public ModulesController(DataContext context)
+    public ModulesController(DataContext context, IDistributedCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     // Получить все модули
     [HttpGet]
     public async Task<IActionResult> GetAllModules()
     {
-        var modules = await _context.Modules
+        var cachedModules = await _cache.GetStringAsync(CacheKey);
+        if (!string.IsNullOrEmpty(cachedModules))
+        {
+            var modules = JsonSerializer.Deserialize<List<ModuleDTO>>(cachedModules);
+            return Ok(modules);
+        }
+        
+        var modulesFromDb = await _context.Modules
             .Select(m => new ModuleDTO
             {
                 Id = m.Id,
@@ -26,8 +38,14 @@ public class ModulesController : ControllerBase
                 CourseId = m.CourseId
             })
             .ToListAsync();
+        
+        var serializedModules = JsonSerializer.Serialize(modulesFromDb);
+        await _cache.SetStringAsync(CacheKey, serializedModules, new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        });
 
-        return Ok(modules);
+        return Ok(modulesFromDb);
     }
 
     // Получить модуль по ID
@@ -64,6 +82,8 @@ public class ModulesController : ControllerBase
         _context.Modules.Add(module);
         await _context.SaveChangesAsync();
 
+        await _cache.RemoveAsync(CacheKey);
+
         var moduleDTO = new ModuleDTO
         {
             Id = module.Id,
@@ -88,6 +108,8 @@ public class ModulesController : ControllerBase
 
         _context.Modules.Update(module);
         await _context.SaveChangesAsync();
+        
+        await _cache.RemoveAsync(CacheKey);
 
         var moduleDTO = new ModuleDTO
         {
@@ -110,6 +132,8 @@ public class ModulesController : ControllerBase
 
         _context.Modules.Remove(module);
         await _context.SaveChangesAsync();
+        
+        await _cache.RemoveAsync(CacheKey);
 
         return Ok(new { Message = "Module deleted successfully" });
     }
